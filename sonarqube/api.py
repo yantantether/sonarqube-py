@@ -13,8 +13,9 @@ from .exceptions import ClientError, AuthError, ValidationError, ServerError
 
 class Endpoint:
 
-    def __init__(self, path, pager=None):
+    def __init__(self, path, response_item=None, pager=None):
         self.path = path
+        self.response_item = response_item
         self.pager = pager
 
 
@@ -52,12 +53,13 @@ class Pager:
         else:
             return True
 
-    def next_page(self, response, data):
-        page_num = self.page_index(response)
-        data[self.request_page_number] = page_num + 1
+    def next_page_number(self, response, data):
+        page_number = self.page_index(response)
+        data[self.request_page_number] = page_number + 1
 
     def items(self, response):
         return response[self.response_items]
+
 
 class SonarQube:
 
@@ -69,8 +71,10 @@ class SonarQube:
     DEFAULT_PORT = 9000
     DEFAULT_BASE_PATH = ''
 
-    AUTH_VALIDATION_ENDPOINT = Endpoint('/api/authentication/validate')
-    PROJECTS_ENDPOINT = Endpoint('/api/projects/search', Pager(response_items='components'))
+    AUTH_VALIDATION_ENDPOINT = Endpoint('/api/authentication/validate', response_item='valid')
+    PROJECTS_ENDPOINT = Endpoint('/api/projects/search', pager=Pager(response_items='components'))
+    ISSUES_ENDPOINT = Endpoint('/api/issues/search', pager=Pager(response_items='issues'))
+    RULE_ENDPOINT = Endpoint('/api/rules/show', response_item='rule')
 
     def __init__(self, host=None, port=None, user=None, password=None,
                  base_path=None, token=None):
@@ -90,24 +94,27 @@ class SonarQube:
         elif user and password:
             self._session.auth = user, password
 
-    def _endpoint(self, endpoint):
+    def _endpoint_url(self, endpoint):
         """
         Return the complete url including host and port for a given endpoint.
 
         :param endpoint: service endpoint as str
         :return: complete url (including host and port) as str
         """
-        return '{}:{}{}{}'.format(self._host, self._port, self._base_path, endpoint)
+        return '{}:{}{}{}'.format(self._host, self._port, self._base_path, endpoint.path)
 
     def _get(self, endpoint, **data):
 
-        res = self._session.get(self._endpoint(endpoint.path), params=data or {})
+        res = self._session.get(self._endpoint_url(endpoint), params=data or {})
 
         # Analyse response status and return or raise exception
         # Note: redirects are followed automatically by requests
         if res.status_code < 300:
             # OK, return http response
-            return res.json()
+            json = res.json()
+            if endpoint.response_item:
+                return json[endpoint.response_item]
+            return json
 
         elif res.status_code == 400:
             # Validation error
@@ -136,14 +143,20 @@ class SonarQube:
         while pager.has_next_page(res):
             res = self._get(endpoint, **qs)
 
-            pager.next_page(res, qs)
+            pager.next_page_number(res, qs)
 
             # Yield items
             for item in pager.items(res):
                 yield item
 
     def get_authentication_validate(self):
-        return self._get(self.AUTH_VALIDATION_ENDPOINT).get('valid', False)
+        return self._get(self.AUTH_VALIDATION_ENDPOINT)
 
     def get_projects_search(self, **args):
         return self._paged_get(self.PROJECTS_ENDPOINT, **args)
+
+    def get_issues(self, **args):
+        return self._paged_get(self.ISSUES_ENDPOINT, **args)
+
+    def get_rule(self, **args):
+        return self._get(self.RULE_ENDPOINT, **args)
