@@ -1,11 +1,7 @@
 """
 This module contains the SonarAPIHandler, used for communicating with the
 SonarQube server web service API.
-
-Derived from https://github.com/kako-nawao/python-sonarqube-api
 """
-import operator
-
 import requests
 
 from .exceptions import ClientError, AuthError, ValidationError, ServerError
@@ -47,6 +43,8 @@ class Pager:
     def has_next_page(self, response):
         if response:
             total = self.total(response)
+            if total > 10000:
+                total = 10000
             page_size = self.page_size(response)
             page_num = self.page_index(response)
             return page_num * page_size < total
@@ -94,7 +92,7 @@ class SonarQube:
         elif user and password:
             self._session.auth = user, password
 
-    def _endpoint_url(self, endpoint):
+    def endpoint_url(self, endpoint):
         """
         Return the complete url including host and port for a given endpoint.
 
@@ -103,9 +101,9 @@ class SonarQube:
         """
         return '{}:{}{}{}'.format(self._host, self._port, self._base_path, endpoint.path)
 
-    def _get(self, endpoint, **data):
+    def get(self, endpoint, **data):
 
-        res = self._session.get(self._endpoint_url(endpoint), params=data or {})
+        res = self._session.get(self.endpoint_url(endpoint), params=data or {})
 
         # Analyse response status and return or raise exception
         # Note: redirects are followed automatically by requests
@@ -133,7 +131,7 @@ class SonarQube:
             # 5xx is server error
             raise ServerError(res.reason)
 
-    def _paged_get(self, endpoint, **data):
+    def paged_get(self, endpoint, **data):
 
         qs = data.copy()
         pager = endpoint.pager
@@ -141,7 +139,7 @@ class SonarQube:
 
         # Cycle through rules
         while pager.has_next_page(res):
-            res = self._get(endpoint, **qs)
+            res = self.get(endpoint, **qs)
 
             pager.next_page_number(res, qs)
 
@@ -150,13 +148,13 @@ class SonarQube:
                 yield item
 
     def get_authentication_validate(self):
-        return self._get(self.AUTH_VALIDATION_ENDPOINT)
+        return self.get(self.AUTH_VALIDATION_ENDPOINT)
 
     def get_projects_search(self, **args):
-        return self._paged_get(self.PROJECTS_ENDPOINT, **args)
+        return self.paged_get(self.PROJECTS_ENDPOINT, **args)
 
     def get_issues(self, **args):
-        return self._paged_get(self.ISSUES_ENDPOINT, **args)
+        return self.paged_get(self.ISSUES_ENDPOINT, **args)
 
     def get_rule(self, **args):
-        return self._get(self.RULE_ENDPOINT, **args)
+        return self.get(self.RULE_ENDPOINT, **args)

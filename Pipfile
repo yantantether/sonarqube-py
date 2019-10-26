@@ -8,7 +8,9 @@ requests = "*"
 keyring = "*"
 
 [dev-packages]
+pytest = "*"
 httpretty = "*"
+codecov = "*"
 
 [requires]
 python_version = "3.7"
