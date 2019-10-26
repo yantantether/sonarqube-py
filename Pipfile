@@ -5,12 +5,14 @@ verify_ssl = true
 
 [packages]
 requests = "*"
-keyring = "*"
 
 [dev-packages]
 pytest = "*"
 httpretty = "*"
 codecov = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
 
 [requires]
 python_version = "3.7"

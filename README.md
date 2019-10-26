@@ -1,4 +1,4 @@
-# sonar-py
+# sonarqube-py
 
 A class library and CLI to ease interaction with [SonarQube](https://www.sonarqube.org/) API.
 
@@ -35,3 +35,30 @@ If you are running sonarqube on localhost try this link:
 If you have access to sonarcloud, try this:
 
     https://sonarcloud.io/web_api
+    
+## Usage
+
+import the SonarQube class from the sonarqube.api module:
+
+```python
+from sonarqube.api import SonarQube
+```
+
+instantiate the class, and execute any of the supported endpoints:
+
+```python
+sq = SonarQube(token=token, host=host, port=port)
+```
+
+
+## Endpoints
+
+sonarqube-py supports the following endpoints:
+
+* get_authentication_validate
+* get_projects_search
+* get_issues
+* get_rule
+
+All endpoints support parameters as defined in the sonarqube wep-api documentation. 
+I.e. the python client simply passes through any arguments you provide through to the web service API. 
