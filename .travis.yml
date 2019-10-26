@@ -1,12 +1,20 @@
 language: python
 python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-
+  - '3.6'
+  - '3.7'
+  - '3.8'
 install:
   - pip install pipenv
   - pipenv install --dev
-
 script:
   - pytest
+deploy:
+  provider: pypi
+  user: __token__
+  password:
+    secure: iY971DXtb4/H3ewla2xAuNRL6FhM4P1Xr1dVzQhZF2OcMRGf53yzC0lrcgIqmC/WevZFLdqbdaN45wyF0lENGPdSvzVO9ADMxgJAhxQo4uOsRc/XO4IZWL7ndwyvNa+6INi8F23PEnkzfsWTpQR9ZMtiPEyBE11UPq5BMqacXgr4fU5fRMIEu5quq9QXzumEQdIDykDW/3I/vPZd9toZecNtcGuboY0Wl1PCXKLWBMCivotV9ANXNYS6TOVs7J36H6JuyUOuT3CTB7t/l3rlLFRvPAiVEQijzJuNZEYZ1rSniZ8KUt1ctPJ8WcL16Sdk1kKxYPMZXXErmwmIw6KtwwEbNZl0YL8rKlLYKFL+z2D9weMSFu3U7RlCwB6R5ss29F4TIAvJZG1ysEqJ5J6rV/GR+1ACqKJg0/baWAD4oBnKKjx8AC6NPgXE2IfTXw9QwWDy2AqrUgHOlcqckiNiIzOwmQkDI/dAEK0HAEFs24N6wsFNVLBEp1PL+zC1X3AfVGNj6+hmCF+WonV7BTWQxEi6aYp7mJ7lNjueVmkxfMIWOqB5oUHY9JSVX7sHrBfFlBQI6eRFXelD7a+9FvS4ZugCoEkDFBPLQK7QQpEnzXvqLijLXZsWTcA7AuliBHGw5vEglWPtnSEdCHiQQj/eXMvnKNF43sK8HUK9PB4tUHU=
+  on:
+    tags: true
+  skip_cleanup: true
+  skip_existing: true
+  distributions: sdist bdist_wheel

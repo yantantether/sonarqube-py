@@ -1,6 +1,3 @@
-__author__ = 'claudio.melendrez'
-
-
 class ClientError(Exception):
     pass
 
@@ -15,4 +12,3 @@ class AuthError(ClientError):
 
 class ValidationError(ClientError):
     pass
-
