@@ -5,3 +5,7 @@ __pycache__/
 build/
 dist/
 sonarqube_py.egg-info/
+graph/
+install/
+pytest/
+venv/
