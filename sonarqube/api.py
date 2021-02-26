@@ -72,7 +72,9 @@ class SonarQube:
     AUTH_VALIDATION_ENDPOINT = Endpoint('/api/authentication/validate', response_item='valid')
     PROJECTS_ENDPOINT = Endpoint('/api/projects/search', pager=Pager(response_items='components'))
     ISSUES_ENDPOINT = Endpoint('/api/issues/search', pager=Pager(response_items='issues'))
+    MEASURES_ENDPOINT = Endpoint('/api/measures/component', response_item='component.measures')
     RULE_ENDPOINT = Endpoint('/api/rules/show', response_item='rule')
+    QUALITYGATES_PROJECT_STATUS_ENDPOINT = Endpoint('/api/qualitygates/project_status', response_item='projectStatus')
 
     def __init__(self, host=None, port=None, user=None, password=None,
                  base_path=None, token=None):
@@ -111,7 +113,8 @@ class SonarQube:
             # OK, return http response
             json = res.json()
             if endpoint.response_item:
-                return json[endpoint.response_item]
+                for item in endpoint.response_item.split('.'):
+                    json = json[item]
             return json
 
         elif res.status_code == 400:
@@ -156,5 +159,11 @@ class SonarQube:
     def get_issues(self, **args):
         return self.paged_get(self.ISSUES_ENDPOINT, **args)
 
+    def get_measures(self, **args):
+        return self.get(self.MEASURES_ENDPOINT, **args)
+
     def get_rule(self, **args):
+        return self.get(self.RULE_ENDPOINT, **args)
+
+    def get_qualitygates_project_status(self, **args):
         return self.get(self.RULE_ENDPOINT, **args)

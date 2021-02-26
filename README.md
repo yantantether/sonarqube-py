@@ -58,6 +58,7 @@ sonarqube-py supports the following endpoints:
 * get_authentication_validate
 * get_projects_search
 * get_issues
+* get_measures
 * get_rule
 
 All endpoints support parameters as defined in the sonarqube wep-api documentation. 
