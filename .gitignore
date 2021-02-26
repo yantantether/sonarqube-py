@@ -9,3 +9,4 @@ graph/
 install/
 pytest/
 venv/
+.DS_Store
