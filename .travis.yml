@@ -1,18 +1,18 @@
 language: python
 python:
-  - '3.6'
-  - '3.7'
-  - '3.8'
+- '3.6'
+- '3.7'
+- '3.8'
 install:
-  - pip install pipenv
-  - pipenv install --dev
+- pip install pipenv
+- pipenv install --dev
 script:
-  - pytest
+- pytest
 deploy:
   provider: pypi
   user: __token__
   password:
-    secure: iY971DXtb4/H3ewla2xAuNRL6FhM4P1Xr1dVzQhZF2OcMRGf53yzC0lrcgIqmC/WevZFLdqbdaN45wyF0lENGPdSvzVO9ADMxgJAhxQo4uOsRc/XO4IZWL7ndwyvNa+6INi8F23PEnkzfsWTpQR9ZMtiPEyBE11UPq5BMqacXgr4fU5fRMIEu5quq9QXzumEQdIDykDW/3I/vPZd9toZecNtcGuboY0Wl1PCXKLWBMCivotV9ANXNYS6TOVs7J36H6JuyUOuT3CTB7t/l3rlLFRvPAiVEQijzJuNZEYZ1rSniZ8KUt1ctPJ8WcL16Sdk1kKxYPMZXXErmwmIw6KtwwEbNZl0YL8rKlLYKFL+z2D9weMSFu3U7RlCwB6R5ss29F4TIAvJZG1ysEqJ5J6rV/GR+1ACqKJg0/baWAD4oBnKKjx8AC6NPgXE2IfTXw9QwWDy2AqrUgHOlcqckiNiIzOwmQkDI/dAEK0HAEFs24N6wsFNVLBEp1PL+zC1X3AfVGNj6+hmCF+WonV7BTWQxEi6aYp7mJ7lNjueVmkxfMIWOqB5oUHY9JSVX7sHrBfFlBQI6eRFXelD7a+9FvS4ZugCoEkDFBPLQK7QQpEnzXvqLijLXZsWTcA7AuliBHGw5vEglWPtnSEdCHiQQj/eXMvnKNF43sK8HUK9PB4tUHU=
+    secure: lxy1HY2MWDwXta/Do4EXQtLf+z4cEP0KARSkYr08AUM6itQ4CzNT+4ewC9VvmQTtdafnp1HRSOkChOTNAhsF1kKuUaNOrhMEHrc8uwQEb/RfzBulcPOROtSZ5ebN/pzJ3QC/ubKVlTXT2SZujsCFD+mpOZfRDK+01Z+33hiGje6aX5ZNPd8gI7Z+UpjybZadSh7qiATgC6n+2veLfrmdbRGL8fSnhC/vUTHqQN+hL/Qo27ZOrE2lZK8HF4HEO0/4ZmThEEzViFmXYeBJViFjJRlL1WlLsvzZudLFFSXEatkUcG8yh35NFzX0Uz1A8nb1bvDYGutkHJ64Nwq2QraT9MAx1RDzE5JjQA2n5cUpQmVI6pfIIXbOAOXz9FJyOhSq8kXg1aoxdiUJFayNl4JPhQPRDNdeQ+VIvfOnEoVzTWLvJLhv1h3VZTvlY3qUJ8OXBl06M3bGF9QdAhdrN6/pp8SdHrsDRoJKV1rtgzR+8CvqLLQ95xhzJBBvnDtKXOKGakKduRFC1H94Dx0gYW6G+a+A9SpzcSJSM0aaRRsS6mcPDGrRKhM7C6NIw5sWh4ngmyxAY5vbXtfChPDW/vGkmKmdqjKJ5vCIjO/WGRSA9uxEYn4kmo3hVdTmaq0lOR9tkpVzfS0gR8OQo8r4wJLPr+/ANlMWJ+AzKcuMfOfMvwY=
   on:
     tags: true
   skip_cleanup: true
