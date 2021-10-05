@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sonarqube-py",
-    version="0.3.1",
+    version="0.3.2",
     author="Pat Turner",
     description="A python wrapper for the SonarQube web API",
     long_description=long_description,
