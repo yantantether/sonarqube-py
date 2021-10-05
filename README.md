@@ -20,7 +20,7 @@ To help development it is useful to run SonarQube as a docker instance.
 
 Use this command:
 
-```
+```bash
 docker run -d --name sonarqube -p 9000:9000 sonarqube
 ```
 
@@ -50,7 +50,6 @@ instantiate the class, and execute any of the supported endpoints:
 sq = SonarQube(token=token, host=host, port=port)
 ```
 
-
 ## Endpoints
 
 sonarqube-py supports the following endpoints:
@@ -60,6 +59,15 @@ sonarqube-py supports the following endpoints:
 * get_issues
 * get_measures
 * get_rule
+* get_qualitygates_project_status
+* get_qualitygates_get_by_project
+* get_qualityprofiles_search
 
 All endpoints support parameters as defined in the sonarqube wep-api documentation. 
 I.e. the python client simply passes through any arguments you provide through to the web service API. 
+
+## Examples
+
+```python
+python -m examples.measures
+```
