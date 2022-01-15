@@ -3,7 +3,7 @@
 A class library and CLI to ease interaction with [SonarQube](https://www.sonarqube.org/) API.
 
 Although this project was written from scratch, it was made possible by understanding
-the previous work of https://github.com/kako-nawao/python-sonarqube-api
+the previous work of <https://github.com/kako-nawao/python-sonarqube-api>
 
 ## Prerequisites
 
@@ -12,7 +12,8 @@ the previous work of https://github.com/kako-nawao/python-sonarqube-api
 This script library uses pipenv to set up Python and the required libraries.
 
 Instructions to install pipenv here:
-https://github.com/pypa/pipenv
+
+<https://github.com/pypa/pipenv>
 
 ### Docker
 
@@ -30,12 +31,12 @@ SonarQube API docs are not easy to find: They are only available from a running 
 
 If you are running sonarqube on localhost try this link:
 
-    http://localhost:9000/web_api/
+<http://localhost:9000/web_api/>
 
 If you have access to sonarcloud, try this:
 
-    https://sonarcloud.io/web_api
-    
+<https://sonarcloud.io/web_api>
+
 ## Usage
 
 import the SonarQube class from the sonarqube.api module:
@@ -63,11 +64,11 @@ sonarqube-py supports the following endpoints:
 * get_qualitygates_get_by_project
 * get_qualityprofiles_search
 
-All endpoints support parameters as defined in the sonarqube wep-api documentation. 
-I.e. the python client simply passes through any arguments you provide through to the web service API. 
+All endpoints support parameters as defined in the sonarqube wep-api documentation.
+I.e. the python client simply passes through any arguments you provide through to the web service API.
 
 ## Examples
 
-```python
+```bash
 python -m examples.measures
-```
+````
