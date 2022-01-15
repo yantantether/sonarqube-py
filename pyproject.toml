@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "sonarqube-py"
+version = "0.4.1"
+description = "A python wrapper for the SonarQube web API"
+license = "MIT"
+authors = ["Pat <itchyknee@gmail.com>"]
+repository = "https://github.com/yantantether/sonarqube-py"
+keywords = ["sonarqube"]
+packages = [
+    { include = "sonarqube" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+requests = "^2.27.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+httpretty = "^1.1.4"
+pytest-cov = "^3.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
