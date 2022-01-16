@@ -26,31 +26,31 @@ def test_endpoint_url_should_use_base_path():
 
 
 @httpretty.activate
-def test_get_response_400_should_raise_validation_error_with_message():
+def test_response_400_should_raise_validation_error_with_message():
 
     httpretty.register_uri(httpretty.GET, 'http://localhost:9000/endpoint',
-                           body='{"errors":[{"msg":"error"}]}', status=400)
+                           body='{"errors":[{"msg":"client error"}]}', status=400)
     with pytest.raises(ValidationError) as err:
         SonarQube().get(Endpoint('/endpoint'))
-        assert 'error' in err.value
+        assert 'client error' in err.value
 
 
 @httpretty.activate
-def test_get_response_401_should_raise_auth_error():
+def test_response_401_should_raise_auth_error():
     httpretty.register_uri(httpretty.GET, 'http://localhost:9000/endpoint', status=401)
     with pytest.raises(AuthError):
         SonarQube().get(Endpoint('/endpoint'))
 
 
 @httpretty.activate
-def test_get_response_403_should_raise_auth_error():
+def test_response_403_should_raise_auth_error():
     httpretty.register_uri(httpretty.GET, 'http://localhost:9000/endpoint', status=403)
     with pytest.raises(AuthError):
         SonarQube().get(Endpoint('/endpoint'))
 
 
 @httpretty.activate
-def test_get_response_404_should_raise_client_error():
+def test_response_404_should_raise_client_error():
     httpretty.register_uri(httpretty.GET, 'http://localhost:9000/endpoint', status=404)
     with pytest.raises(ClientError):
         SonarQube().get(Endpoint('/endpoint'))
@@ -96,6 +96,11 @@ def test_paged_get_returns_multiple_pages():
     generator = SonarQube().paged_get(Endpoint('/endpoint', pager=Pager(response_items='items')))
     assert 2 == len(list(generator))
 
+@httpretty.activate
+def test_post_returns_response():
+    httpretty.register_uri(httpretty.POST, 'http://localhost:9000/endpoint',
+                           body='{"hello":"world"}')
+    assert 'world' == SonarQube().post(Endpoint('/endpoint'))['hello']
 
 def __paged_response(page_index=1, page_size=1, total=1):
     return json.dumps(

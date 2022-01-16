@@ -3,9 +3,7 @@ This module contains the SonarAPIHandler, used for communicating with the
 SonarQube server web service API.
 """
 import requests
-
-from .exceptions import ClientError, AuthError, ValidationError, ServerError
-
+from .exceptions import raise_for_status
 
 class Endpoint:
 
@@ -78,7 +76,8 @@ class SonarQube:
     QUALITYGATES_LIST_ENDPOINT = Endpoint('/api/qualitygates/list', pager=Pager(response_items='components'))
     QUALITYGATES_GET_BY_PROJECT_ENDPOINT = Endpoint('/api/qualitygates/get_by_project', response_item='qualityGate')
     QUALITYPROFILES_SEARCH_ENDPOINT = Endpoint('/api/qualityprofiles/search', response_item='profiles')
-
+    PROJECTS_CREATE_ENDPOINT = Endpoint('/api/projects/create', response_item='project')
+    PROJECTS_DELETE_ENDPOINT = Endpoint('/api/projects/delete', response_item=None)
 
     def __init__(self, host=None, port=None, user=None, password=None,
                  base_path=None, token=None):
@@ -107,14 +106,26 @@ class SonarQube:
         """
         return '{}:{}{}{}'.format(self._host, self._port, self._base_path, endpoint.path)
 
+    def post(self, endpoint, **data):
+        return self.call(self._session.post, endpoint, **data)
+        
     def get(self, endpoint, **data):
+        return self.call(self._session.get, endpoint, **data)
+        
+    def delete(self, endpoint, **data):
+        return self.call(self._session.delete, endpoint, **data)
+        
+    def call(self, method, endpoint, **data):
 
-        res = self._session.get(self.endpoint_url(endpoint), params=data or {})
+        res = method(self.endpoint_url(endpoint), stream=True, params=data or {})
 
         # Analyse response status and return or raise exception
         # Note: redirects are followed automatically by requests
-        if res.status_code < 300:
-            # OK, return http response
+        raise_for_status(res)
+        
+        # OK, return http response
+        json = None
+        if (res.text):
             json = res.json()
             if endpoint.response_item:
                 for item in endpoint.response_item.split('.'):
@@ -123,24 +134,7 @@ class SonarQube:
                     else:
                         json = None
                         break
-            return json
-
-        elif res.status_code == 400:
-            # Validation error
-            msg = ', '.join(e['msg'] for e in res.json()['errors'])
-            raise ValidationError(msg)
-
-        elif res.status_code in (401, 403):
-            # Auth error
-            raise AuthError(res.reason)
-
-        elif res.status_code < 500:
-            # Other 4xx, generic client error
-            raise ClientError(res.reason)
-
-        else:
-            # 5xx is server error
-            raise ServerError(res.reason)
+        return json
 
     def paged_get(self, endpoint, **data):
 
@@ -182,3 +176,10 @@ class SonarQube:
 
     def get_qualityprofiles_search(self, **args):
         return self.get(self.QUALITYPROFILES_SEARCH_ENDPOINT, **args)
+    
+    def post_projects_create(self, **args):
+        return self.post(self.PROJECTS_CREATE_ENDPOINT, **args)
+
+    def post_projects_delete(self, **args):
+        return self.post(self.PROJECTS_DELETE_ENDPOINT, **args)
+    
