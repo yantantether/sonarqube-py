@@ -3,7 +3,11 @@ This module contains the SonarAPIHandler, used for communicating with the
 SonarQube server web service API.
 """
 import requests
+import logging
+from os import environ as env
 from .exceptions import raise_for_status
+
+logger = logging.getLogger('sonarqube.api')
 
 class Endpoint:
 
@@ -63,21 +67,26 @@ class SonarQube:
     Adapter for SonarQube's web service API.
     """
     # Default host is local
-    DEFAULT_HOST = 'http://localhost'
-    DEFAULT_PORT = 9000
+    DEFAULT_HOST = env.get('SONAR_HOST', 'http://localhost')
+    DEFAULT_PORT = env.get('SONAR_PORT', 9000)
+    DEFAULT_TOKEN = env.get('SONAR_TOKEN')
+    DEFAULT_USER = env.get('SONAR_USERNAME')
+    DEFAULT_PASSWORD = env.get('SONAR_PASSWORD')
     DEFAULT_BASE_PATH = ''
 
     AUTH_VALIDATION_ENDPOINT = Endpoint('/api/authentication/validate', response_item='valid')
+    PROJECTS_CREATE_ENDPOINT = Endpoint('/api/projects/create', response_item='project')
+    PROJECTS_DELETE_ENDPOINT = Endpoint('/api/projects/delete', response_item=None)
     PROJECTS_ENDPOINT = Endpoint('/api/projects/search', pager=Pager(response_items='components'))
     ISSUES_ENDPOINT = Endpoint('/api/issues/search', pager=Pager(response_items='issues'))
     MEASURES_ENDPOINT = Endpoint('/api/measures/component', response_item='component.measures')
     RULE_ENDPOINT = Endpoint('/api/rules/show', response_item='rule')
+    QUALITYGATES_SELECT_ENDPOINT = Endpoint('/api/qualitygates/select', response_item=None)
     QUALITYGATES_PROJECT_STATUS_ENDPOINT = Endpoint('/api/qualitygates/project_status', response_item='projectStatus')
     QUALITYGATES_LIST_ENDPOINT = Endpoint('/api/qualitygates/list', pager=Pager(response_items='components'))
     QUALITYGATES_GET_BY_PROJECT_ENDPOINT = Endpoint('/api/qualitygates/get_by_project', response_item='qualityGate')
     QUALITYPROFILES_SEARCH_ENDPOINT = Endpoint('/api/qualityprofiles/search', response_item='profiles')
-    PROJECTS_CREATE_ENDPOINT = Endpoint('/api/projects/create', response_item='project')
-    PROJECTS_DELETE_ENDPOINT = Endpoint('/api/projects/delete', response_item=None)
+    QUALITYPROFILES_ADD_PROJECT_ENDPOINT = Endpoint('/api/qualityprofiles/add_project', response_item='profiles')
 
     def __init__(self, host=None, port=None, user=None, password=None,
                  base_path=None, token=None):
@@ -85,18 +94,27 @@ class SonarQube:
         Set connection info and session, including auth (if user+password
         and/or auth token were provided).
         """
-        self._host = host or self.DEFAULT_HOST
-        self._port = port or self.DEFAULT_PORT
-        self._base_path = base_path or self.DEFAULT_BASE_PATH
+        self._host = host or SonarQube.DEFAULT_HOST
+        self._port = port or SonarQube.DEFAULT_PORT
+        self._base_path = base_path or SonarQube.DEFAULT_BASE_PATH
+        self._token = token or SonarQube.DEFAULT_TOKEN
+        self._user = user or SonarQube.DEFAULT_USER
+        self._password = password or SonarQube.DEFAULT_PASSWORD
         self._session = requests.Session()
+        self._auth()
+        logger.info("SonarQube at [%s:%s] ", self._host, self._port)
 
+    def _auth(self):
         # Prefer revocable authentication token over username/password if
         # both are provided
-        if token:
-            self._session.auth = token, ''
-        elif user and password:
-            self._session.auth = user, password
-
+        if self._token:
+            logger.info('Authenticating with token')
+            self._session.auth = self._token, ''
+        elif self._user and self._password:
+            logger.info('Authenticating with username/password')
+            self._session.auth = self._user, self._password
+        
+        
     def endpoint_url(self, endpoint):
         """
         Return the complete url including host and port for a given endpoint.
@@ -154,32 +172,38 @@ class SonarQube:
                 yield item
 
     def get_authentication_validate(self):
-        return self.get(self.AUTH_VALIDATION_ENDPOINT)
+        return self.get(SonarQube.AUTH_VALIDATION_ENDPOINT)
 
-    def get_projects_search(self, **args):
-        return self.paged_get(self.PROJECTS_ENDPOINT, **args)
-
-    def get_issues(self, **args):
-        return self.paged_get(self.ISSUES_ENDPOINT, **args)
-
-    def get_measures(self, **args):
-        return self.get(self.MEASURES_ENDPOINT, **args)
-
-    def get_rule(self, **args):
-        return self.get(self.RULE_ENDPOINT, **args)
-
-    def get_qualitygates_project_status(self, **args):
-        return self.get(self.QUALITYGATES_PROJECT_STATUS_ENDPOINT, **args)
-
-    def get_qualitygates_get_by_project(self, **args):
-        return self.get(self.QUALITYGATES_GET_BY_PROJECT_ENDPOINT, **args)
-
-    def get_qualityprofiles_search(self, **args):
-        return self.get(self.QUALITYPROFILES_SEARCH_ENDPOINT, **args)
-    
     def post_projects_create(self, **args):
-        return self.post(self.PROJECTS_CREATE_ENDPOINT, **args)
+        return self.post(SonarQube.PROJECTS_CREATE_ENDPOINT, **args)
 
     def post_projects_delete(self, **args):
-        return self.post(self.PROJECTS_DELETE_ENDPOINT, **args)
+        return self.post(SonarQube.PROJECTS_DELETE_ENDPOINT, **args)
+    
+    def get_projects_search(self, **args):
+        return self.paged_get(SonarQube.PROJECTS_ENDPOINT, **args)
+
+    def get_issues(self, **args):
+        return self.paged_get(SonarQube.ISSUES_ENDPOINT, **args)
+
+    def get_measures(self, **args):
+        return self.get(SonarQube.MEASURES_ENDPOINT, **args)
+
+    def get_rule(self, **args):
+        return self.get(SonarQube.RULE_ENDPOINT, **args)
+
+    def post_qualitygates_select(self, **args):
+        return self.post(SonarQube.QUALITYGATES_SELECT_ENDPOINT, **args)
+
+    def get_qualitygates_project_status(self, **args):
+        return self.get(SonarQube.QUALITYGATES_PROJECT_STATUS_ENDPOINT, **args)
+
+    def get_qualitygates_get_by_project(self, **args):
+        return self.get(SonarQube.QUALITYGATES_GET_BY_PROJECT_ENDPOINT, **args)
+
+    def get_qualityprofiles_search(self, **args):
+        return self.get(SonarQube.QUALITYPROFILES_SEARCH_ENDPOINT, **args)
+
+    def post_qualityprofiles_add_project(self, **args):
+        return self.post(SonarQube.QUALITYPROFILES_ADD_PROJECT_ENDPOINT, **args)
     
