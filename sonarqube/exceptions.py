@@ -36,3 +36,6 @@ class AuthError(SonarQubeApiException):
 
 class ValidationError(SonarQubeApiException):
     pass
+
+class CliException(Exception):
+    pass

@@ -1,0 +1,8 @@
+---
+# Example sonarqube CLI config file
+project:
+  key: sonarqube-py
+  name: sonarqube-py
+  quality-gate: "Sonar way"
+  quality-profiles:
+    py: "Sonar way"
