@@ -31,7 +31,7 @@ def create(project):
     try:
         project.create_or_update()
     except RequestException as e:
-        logger.error("Status [%s]: %s", e.response.status_code, e)
+        logger.error(f"Error creating with status [{e.response.status_code}]: {e}")
 
 @cli.command()
 @pass_config
@@ -39,12 +39,12 @@ def delete(project):
     try:
         project.delete()
     except RequestException as e:
-        logger.error("Status [%s]: %s", e.response.status_code, e)
+        logger.error(f"Error deleting with status [{e.response.status_code}]: {e}")
 
 def read_project(file = None, suffix = None, sq = None):
     config_filename = file or ".sonarqube.yml"
     if (not path.isfile(config_filename)):
-        raise CliException("sonarqube config file missing: [%s]".format(config_filename))
+        raise CliException(f"Sonarqube config file missing: [{config_filename}]")
     with open(config_filename, "r") as stream:
         try:
             config = yaml.safe_load(stream)
