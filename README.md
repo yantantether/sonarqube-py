@@ -67,7 +67,8 @@ You can configure behaviour using environment variables:
 
 | env-var | meaning | default |
 | ------- | ------- | ------- |
-| SONAR_HOST | SonarQube host | `localhost` |
+| SONAR_URL | SonarQube URL | `http://localhost:9000` |
+| SONAR_HOST | SonarQube host | `http://localhost` |
 | SONAR_PORT | SonarQube port | `9000` |
 | SONAR_TOKEN | SonarQube personal access token | |
 
@@ -80,6 +81,7 @@ Command line arguments will override environment variables.
 | ---- | ------- | ------- |
 | -c   | Configuration file | `.sonarqube-ci.yml` |
 | -s   | Suffix to add to key and name when managing SonarQube projects | |
+| -u   | SonarQube url | _see environment variables_ |
 | -h   | SonarQube host | _see environment variables_ |
 | -p   | SonarQube port | _see environment variables_ |
 | -t   | SonarQube personal access token | |

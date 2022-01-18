@@ -88,21 +88,19 @@ class SonarQube:
     QUALITYPROFILES_SEARCH_ENDPOINT = Endpoint('/api/qualityprofiles/search', response_item='profiles')
     QUALITYPROFILES_ADD_PROJECT_ENDPOINT = Endpoint('/api/qualityprofiles/add_project', response_item='profiles')
 
-    def __init__(self, host=None, port=None, user=None, password=None,
+    def __init__(self, url=None, host=None, port=None, user=None, password=None,
                  base_path=None, token=None):
         """
         Set connection info and session, including auth (if user+password
         and/or auth token were provided).
         """
-        self._host = host or SonarQube.DEFAULT_HOST
-        self._port = port or SonarQube.DEFAULT_PORT
-        self._base_path = base_path or SonarQube.DEFAULT_BASE_PATH
+        self._url = self._to_url(url, host, port, base_path)
         self._token = token or SonarQube.DEFAULT_TOKEN
         self._user = user or SonarQube.DEFAULT_USER
         self._password = password or SonarQube.DEFAULT_PASSWORD
         self._session = requests.Session()
         self._auth()
-        logger.info("SonarQube at [%s:%s] ", self._host, self._port)
+        logger.info(f'SonarQube at [{self._url}]')
 
     def _auth(self):
         # Prefer revocable authentication token over username/password if
@@ -113,6 +111,13 @@ class SonarQube:
         elif self._user and self._password:
             logger.info('Authenticating with username/password')
             self._session.auth = self._user, self._password
+        else:
+            logger.info('Authentication not set')
+            
+    def _to_url(self, url=None, host=None, port=None, base_path=None):
+        if (url):
+            return url
+        return f'{host or SonarQube.DEFAULT_HOST}:{port or SonarQube.DEFAULT_PORT}{base_path or SonarQube.DEFAULT_BASE_PATH}'
         
         
     def endpoint_url(self, endpoint):
@@ -122,7 +127,7 @@ class SonarQube:
         :param endpoint: service endpoint as str
         :return: complete url (including host and port) as str
         """
-        return '{}:{}{}{}'.format(self._host, self._port, self._base_path, endpoint.path)
+        return f'{self._url}{endpoint.path}'
 
     def post(self, endpoint, **data):
         return self.call(self._session.post, endpoint, **data)
