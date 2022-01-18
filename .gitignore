@@ -2,6 +2,7 @@
 *.csv
 .idea
 __pycache__/
+*.pyc
 build/
 dist/
 sonarqube_py.egg-info/
