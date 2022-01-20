@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sonarqube-py"
-version = "0.5.3"
+version = "0.5.4"
 description = "A python wrapper for the SonarQube web API"
 license = "MIT"
 authors = ["Pat <itchyknee@gmail.com>"]
