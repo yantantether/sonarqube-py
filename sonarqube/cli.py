@@ -24,7 +24,7 @@ pass_config = click.make_pass_decorator(Project, ensure=True)
 def cli(ctx, config=None, suffix=None, url=None, host=None, port=None, token=None, log_level=None):
     logging.basicConfig(level=log_level or logging.INFO)
     sq = SonarQube(url=url, host=host, port=port, token=token)
-    ctx.obj = read_project(file=config, suffix=suffix, sq = sq)
+    ctx.obj = _read_project(file=config, suffix=suffix, sq = sq)
 
 @cli.command()
 @pass_config
@@ -32,7 +32,7 @@ def create(project):
     try:
         project.create_or_update()
     except RequestException as e:
-        logger.error(f"Error creating with status [{e.response.status_code if e.response else 'no response'}]: {e}")
+        handleRequestException('create', e)
 
 @cli.command()
 @pass_config
@@ -40,9 +40,19 @@ def delete(project):
     try:
         project.delete()
     except RequestException as e:
-        logger.error(f"Error deleting with status [{e.response.status_code}]: {e}")
+        handleRequestException('delete', e)
 
-def read_project(file = None, suffix = None, sq = None):
+def handleRequestException(command, e):
+    err_code = 1
+    if (e.response is not None):
+        status_code = e.response.status_code
+        logger.info(f"Error on '{ command }' with response: { vars(e.response) }")
+        err_code = int(str(status_code)[:1])
+    logger.error(f"Error on 'create' returning error code [{ err_code }]")
+    raise click.exceptions.Exit(err_code)
+    
+    
+def _read_project(file = None, suffix = None, sq = None):
     config_filename = file or ".sonarqube.yml"
     if (not path.isfile(config_filename)):
         raise CliException(f"Sonarqube config file missing: [{config_filename}]")
